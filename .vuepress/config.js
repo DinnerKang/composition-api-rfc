@@ -14,7 +14,12 @@ module.exports = {
           { text: 'API 参考', link: '/zh/api/' },
         ],
       },
-      
+      '/kr/': {
+        nav: [
+          { text: '초안', link: '/kr/' },
+          { text: 'API 레퍼런스', link: '/kr/api/' },
+        ],
+      },
     }
   },
   locales: {
@@ -25,6 +30,10 @@ module.exports = {
     '/zh/': {
       lang: '中文',
       title: 'Vue 组合式 API',
+    },
+    '/kr/': {
+      lang: '한국어',
+      title: 'Vue Composition API',
     }
   }
 }
