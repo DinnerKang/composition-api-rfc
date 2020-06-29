@@ -3,23 +3,29 @@ sidebar: auto
 sidebarDepth: 2
 ---
 
+# API Reference
 # API 레퍼런스
 
 ::: tip
+Download the free [Cheat Sheet](https://www.vuemastery.com/vue-3-cheat-sheet/) from Vue Mastery or watch their [Vue 3 Course](https://www.vuemastery.com/courses/vue-3-essentials/why-the-composition-api/).
 Vue Mastery에서 무료로 주는 [꿀팁](https://www.vuemastery.com/vue-3-cheat-sheet/)이나 [Vue 3 강좌](https://www.vuemastery.com/courses/vue-3-essentials/why-the-composition-api/)를 보세요.
 :::
 
 ## `setup`
 
+The `setup` function is a new component option. It serves as the entry point for using the Composition API inside components.
 `setup` 기능은 새로운 컴포넌트 옵션입니다. 컴포넌트 내부에서 Composition API를 사용하기 위한 진입 점 역할을 합니다.
 
+- **Invocation Timing**
 - **호출 타이밍**
 
   `setup` is called right after the initial props resolution when a component instance is created. Lifecycle-wise, it is called before the `beforeCreate` hook.
+  `setup`은 컴포넌트 인스턴스가 생성 될 때 props 초기값 할당 직후에 호출됩니다. 라이프 사이클 측면에서는 `beforeCreate` 훅 전에 호출됩니다.
 
-- **Usage with Templates**
+- **template 사용법**
 
   If `setup` returns an object, the properties on the object will be merged on to the render context for the component's template:
+  `setup`이 객체를 반환하면, 객체의 속성이 컴포넌트 template 문맥에 병합됩니다.
 
   ```html
   <template>
@@ -34,7 +40,7 @@ Vue Mastery에서 무료로 주는 [꿀팁](https://www.vuemastery.com/vue-3-che
         const count = ref(0)
         const object = reactive({ foo: 'bar' })
 
-        // expose to template
+        // template에 노출
         return {
           count,
           object
@@ -45,10 +51,13 @@ Vue Mastery에서 무료로 주는 [꿀팁](https://www.vuemastery.com/vue-3-che
   ```
 
   Note that refs returned from `setup` are automatically unwrapped when accessed in the template so there's no need for `.value` in templates.
+  `setup`에서 반환 된 ref들은 template에서 접근할 때 자동으로 래핑 해제되므로 template에서 `.value`가 필요하지 않습니다.
 
 - **Usage with Render Functions / JSX**
+- **렌더링 함수 / JSX 사용법**
 
   `setup` can also return a render function, which can directly make use of reactive state declared in the same scope:
+  !!! `setup`은 동일한 범위에서 선언된 반응 상태를 직접 사용할 수 있는 렌더 함수를 반환 할 수 있습니다.
 
   ```js
   import { h, ref, reactive } from 'vue'
@@ -66,6 +75,7 @@ Vue Mastery에서 무료로 주는 [꿀팁](https://www.vuemastery.com/vue-3-che
 - **Arguments**
 
   The function receives the resolved props as its first argument:
+  !!! 이 함수는 해결 된 props를 첫번째 인수로 받습니다.
 
   ```js
   export default {
@@ -79,6 +89,7 @@ Vue Mastery에서 무료로 주는 [꿀팁](https://www.vuemastery.com/vue-3-che
   ```
 
   Note this `props` object is reactive - i.e. it is updated when new props are passed in, and can be observed and reacted upon using `watchEffect` or `watch`:
+  `props` 객체는 반응형입니다. - 새로운 props가 전달 될 때 업데이트되며, `watchEffect` 또는 `watch`를 사용하여 관찰 및 반응 할 수 있습니다.
 
   ```js
   export default {
@@ -94,6 +105,7 @@ Vue Mastery에서 무료로 주는 [꿀팁](https://www.vuemastery.com/vue-3-che
   ```
 
   However, do NOT destructure the `props` object, as it will lose reactivity:
+  그러나 `props`객체를 구조화 하지 마세요. 반응성을 잃습니다.
 
   ```js
   export default {
@@ -102,15 +114,17 @@ Vue Mastery에서 무료로 주는 [꿀팁](https://www.vuemastery.com/vue-3-che
     },
     setup({ name }) {
       watchEffect(() => {
-        console.log(`name is: ` + name) // Will not be reactive!
+        console.log(`name is: ` + name) // 반응하지 않을 것입니다!
       })
     }
   }
   ```
 
   The `props` object is immutable for userland code during development (will emit warning if user code attempts to mutate it).
+  `props`객체는 개발 중에 사용자 영역 코드에 대해서 불변입니다(사용자 코드를 변경하려고 하면 경고가 발생합니다).
 
   The second argument provides a context object which exposes a selective list of properties that were previously exposed on `this` in 2.x APIs:
+  두번째 인수는 2.x API에서 `this`에 노출되었던 선택적 속성 목록을 노출하는 context 객체를 제공합니다.
 
   ```js
   const MyComponent = {
@@ -123,23 +137,29 @@ Vue Mastery에서 무료로 주는 [꿀팁](https://www.vuemastery.com/vue-3-che
   ```
 
   `attrs` and `slots` are proxies to the corresponding values on the internal component instance. This ensures they always expose the latest values even after updates so that we can destructure them without worrying accessing a stale reference:
+  `attrs`와 `slots`는 내부 컴포넌트 인스턴스의 해당 값에 대한 대용물입니다.
 
   ```js
   const MyComponent = {
     setup(props, { attrs }) {
       // a function that may get called at a later stage
+      // 나중 단계에서 호출될 수 있는 함수
       function onClick() {
         console.log(attrs.foo) // guaranteed to be the latest reference
+                                // 최신 레퍼런스임을 보증함
       }
     }
   }
   ```
 
   There are a number of reasons for placing `props` as a separate first argument instead of including it in the context:
+  `props`를 context에 포함시키는 대신 별도의 첫 번째 인수로 배치하는데는 여러가지 이유가 있습니다.
 
   - It's much more common for a component to use `props` than the other properties, and very often a component uses only `props`.
+  - 컴포넌트가 다른 속성보다 `props`를 사용하는 것이 훨씬 일반적이며, 컴포넌트는 종종 'props'만 사용합니다.
 
   - Having `props` as a separate argument makes it easier to type it individually (see [TypeScript-only Props Typing](#typescript-only-props-typing) below) without messing up the types of other properties on the context. It also makes it possible to keep a consistent signature across `setup`, `render` and plain functional components with TSX support.
+  - !!!`props`를 별도의 인수로 사용하면 context의 다른 속성 유형을 손상시키지 않고 개별적으로 입력하기가 더 쉽습니다 (아래 [TypeScript-only Props Typing](#typescript-only-props-typing) 참조 - 사라진듯함 이슈로 남김). 또한 TSX를 지원하는 `setup`, `render` 및 일반 기능 구성 요소간에 일관된 서명을 유지할 수 있습니다.
 
 - **Usage of `this`**
 
